@@ -1,0 +1,24 @@
+version: '2'
+services:
+  traefik:
+    image: traefik:1.7
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+      - 21222:21222
+    networks:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./mounts/traefik.toml:/traefik.toml
+      - ./mounts/configs/:/traefik.conf.d/
+      - ./mounts/acme.json:/acme.json
+    container_name: traefik
+    environment: [ DO_AUTH_TOKEN ]
+    labels:
+      traefik.enable: false
+
+networks:
+  web:
+    external: true

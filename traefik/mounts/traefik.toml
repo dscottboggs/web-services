@@ -1,0 +1,45 @@
+debug = false
+sendAnonymousUsage = true
+logLevel = "INFO"
+#logLevel = "DEBUG"
+defaultEntryPoints = ["https","http"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+  [entryPoints.https.tls]
+  [entryPoints.dashboard]
+  address = ":21222"
+
+[retry]
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "tams.tech"
+watch = true
+
+[acme]
+  email = "sysadmin@tams.tech"
+  storage = "acme.json"
+  entryPoint = "https"
+  onHostRule = true
+  # Uncomment for staging server
+  # caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+  [acme.dnsChallenge]
+    provider = "digitalocean"
+
+[accessLog]
+  [accessLog.filters]
+  statusCodes = ["400-599"]
+  retryAttempts = true
+
+[api]
+entryPoint = "dashboard"
+
+[file]
+  directory = "/traefik.conf.d/"
+  watch = true

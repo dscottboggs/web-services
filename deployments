@@ -1,0 +1,70 @@
+#!/usr/bin/env zsh
+# Run the containers
+
+function abort() {
+    echo "$@"
+    exit 1
+}
+function composeOpts() {
+    dir=$1
+    printf "--project-directory=$dir -f $dir/docker-compose.yml"
+}
+tokenFileLoc=$HOME/.config/digital-ocean/auth.key
+
+function ensureNetwork() {
+    # ensure the network exists
+    docker network create web
+}
+
+function start() {
+    ensureNetwork
+    # start bitwarden
+    docker-compose `composeOpts bitwarden` pull
+    docker-compose `composeOpts bitwarden` up -d
+
+    # start traefik
+    docker-compose `composeOpts traefik` pull
+    DO_AUTH_TOKEN=`< $tokenFileLoc` docker-compose `composeOpts traefik` up -d
+}
+
+function stop() {
+    service="$1"
+    if test -z "$service"; then
+        stop bitwarden
+        stop traefik
+    else
+        docker-compose `composeOpts $service` down
+        docker network rm web > /dev/null
+    fi
+}
+
+function restart() {
+    service="$1"
+    if test -z "$service"; then
+        restart bitwarden
+        restart traefik
+    else
+        docker-compose `composeOpts $service` restart
+        docker network rm web > /dev/null
+    fi
+}
+
+function logs() {
+    if test -z "$1"; then
+        logs bitwarden
+        logs traefik
+    else
+        docker-compose `composeOpts $1` logs -f &
+    fi
+}
+
+case $1 in
+start)   start;;
+run)     start;;
+up)      start;;
+stop)    stop "$2";;
+down)    stop "$2";;
+restart) restart "$2";;
+logs)    logs "$2";;
+*)       abort "no action known for $1";;
+esac

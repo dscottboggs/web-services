@@ -1,0 +1,22 @@
+version: "3.5"
+
+services:
+  bitwarden:
+    image: bitwardenrs/server
+    container_name: bitwarden
+    volumes:
+      - type: bind
+        source: ./mounts/data
+        target: /data/
+    ports: [ 80 ]
+    networks: [ web ]
+    labels:
+      traefik.docker.network: web
+      traefik.domain: tams.tech
+      traefik.enable: 'true'
+      traefik.frontend.rule: Host:pw.tams.tech,bitwarden.tams.tech
+
+networks:
+  web:
+    external: true
+      
