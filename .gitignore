@@ -1,2 +1,4 @@
 bitwarden/mounts
 .vscode
+**/secrets/
+nextcloud/mounts

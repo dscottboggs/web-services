@@ -1,0 +1,38 @@
+version: '3.5'
+
+services:
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: nc
+      POSTGRES_PASSWORD_FILE:  
+    volumes:
+      - type: bind
+        target: /.secrets/pw
+        source: ./secrets/pg-pw
+      - target: /var/lib/postgresql/data
+        source: ./mounts/db
+        type: bind
+    networks: [ local ]
+  cache:
+    image: redis:alpine
+    networks: [ local ]
+  app:
+    image: nextcloud:stable-apache
+    volumes:
+      - type: bind
+        source: ./mounts/data
+        target: /var/www/html
+    networks: [ web, local ]
+    environment:
+      POSTGRES_DB: nc
+      POSTGRES_USER: nc
+      POSTGRES_PASSWORD:
+      POSTGRES_HOST: database
+      REDIS_HOST: cache
+
+networks:
+  web:
+    external: true
+  local:
+    internal: true

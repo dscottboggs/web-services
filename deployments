@@ -25,6 +25,10 @@ function start() {
     # start traefik
     docker-compose `composeOpts traefik` pull
     DO_AUTH_TOKEN=`< $tokenFileLoc` docker-compose `composeOpts traefik` up -d
+
+    # start nextcloud
+    docker-compose `composeOpts nextcloud` pull
+    POSTGRES_PASSWORD=`<nextcloud/secrets/pg.pw` docker-compose `composeOpts nextcloud` up -d
 }
 
 function stop() {
@@ -32,6 +36,7 @@ function stop() {
     if test -z "$service"; then
         stop bitwarden
         stop traefik
+        stop nextcloud
     else
         docker-compose `composeOpts $service` down
         docker network rm web > /dev/null
@@ -43,6 +48,7 @@ function restart() {
     if test -z "$service"; then
         restart bitwarden
         restart traefik
+        restart nextcloud
     else
         docker-compose `composeOpts $service` restart
         docker network rm web > /dev/null
@@ -53,6 +59,7 @@ function logs() {
     if test -z "$1"; then
         logs bitwarden
         logs traefik
+        logs nextcloud
     else
         docker-compose `composeOpts $1` logs -f &
     fi
