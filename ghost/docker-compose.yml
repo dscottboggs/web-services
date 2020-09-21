@@ -1,0 +1,46 @@
+version: "3.5"
+
+services:
+  application:
+    image: ghost:3-alpine
+    restart: always
+    expose: [2368]
+    environment:
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: root
+      database__connection__password:
+      database__connection__database: ghost
+      url: https://hot-kool-aid.tams.tech/
+      mail__transport: SMTP
+      mail__from: do_not_reply@tams.tech
+      mail__options__service: Zoho
+      mail__options__host: smtp.zoho.com
+      mail__options__secureConnection: "true"
+      mail__options__port: 465
+      mail__options__auth__user: do_not_reply@tams.tech
+      mail__options__auth__pass:
+    labels:
+      traefik.docker.network: web
+      traefik.domain: tams.tech
+      traefik.enable: "true"
+      traefik.frontend.rule: Host:hot-kool-aid.tams.tech,hka.tams.tech
+    networks: [internal, web]
+    volumes:
+      - source: ./mounts/content
+        target: /var/lib/ghost/content
+        type: bind
+  db:
+    image: mariadb:10
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD:
+    networks: [internal]
+    volumes:
+      - ./mounts/db:/var/lib/mysql
+
+networks:
+  web:
+    external: true
+  internal:
+    internal: true

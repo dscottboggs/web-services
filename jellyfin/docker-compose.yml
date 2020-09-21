@@ -1,0 +1,30 @@
+version: '3.5'
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    user: 1000:1000
+    restart: unless-stopped
+    volumes:
+      - target: /config
+        source: ./mounts/config
+        type: bind
+      - target: /media/Movies
+        source: /home/scott/Videos/Movies
+        type: bind
+      - type: bind
+        target: /media/TV
+        source: /home/scott/Videos/TV
+      - type: bind
+        target: /cache
+        source: ./mounts/cache
+    networks: [ web ]
+    labels:
+      traefik.docker.network: web
+      traefik.enable: 'true'
+      traefik.domain: tams.tech
+      traefik.frontend.rule: Host:mb.tams.tech,movies.tams.tech
+
+networks:
+  web:
+    external: true

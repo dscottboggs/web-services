@@ -1,4 +1,5 @@
-bitwarden/mounts
 .vscode
 **/secrets/
-nextcloud/mounts
+*/mounts/
+*.pw
+*.token
